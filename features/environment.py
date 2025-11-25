@@ -50,21 +50,31 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, scenario):
     """Hook yang dijalankan setelah setiap scenario"""
+    # Cek apakah scenario adalah negative case (tag @negative)
+    tags_lower = [t.lower() for t in getattr(scenario, "tags", [])]
+    is_negative = "negative" in tags_lower
+
     # Screenshot jika scenario gagal (untuk Allure dan folder screenshots)
-    """if scenario.status == 'failed':
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        screenshot_name = f"screenshots/{scenario.name}_{timestamp}.png"
+    if scenario.status == "failed" or is_negative:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_name = scenario.name.replace(" ", "_")
+        screenshot_name = f"screenshots/{safe_name}_{timestamp}.png"
+
+        os.makedirs("screenshots", exist_ok=True)
 
         # Take screenshot
-        screenshot_bytes = context.page.screenshot(path=screenshot_name, full_page=True)
+        screenshot_bytes = context.page.screenshot(
+            path=screenshot_name,
+            full_page=True
+        )
         print(f"Screenshot saved: {screenshot_name}")
 
-        # Attach screenshot to Allure report
+        # Attach screenshot ke Allure report
         allure.attach(
             screenshot_bytes,
-            name=f"Failed: {scenario.name}",
+            name=f"Failed (Negative): {scenario.name}",
             attachment_type=AttachmentType.PNG
-        )"""
+        )
 
     # Save trace jika enabled
     if os.getenv('TRACE', 'false').lower() == 'true':
