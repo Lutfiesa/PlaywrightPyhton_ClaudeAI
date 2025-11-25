@@ -1,0 +1,5 @@
+pytest==7.4.3
+pytest-playwright==0.4.3
+playwright==1.40.0
+behave==1.2.6
+allure-behave==2.13.2
